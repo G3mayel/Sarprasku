@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBLIVION | Cyber-Renaissance Agency</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================
+           CSS VARIABLES & RESET
+           ========================================= */
+        :root {
+            --bg-color: #030303;
+            --text-color: #EAEAEA;
+            --accent-color: #555555;
+            --font-serif: 'Cinzel Decorative', serif;
+            --font-sans: 'Syne', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            cursor: none; /* Hide default cursor for custom magnetic cursor */
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        /* =========================================
+           GLOBAL EFFECTS
+           ========================================= */
+        .noise {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.06;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 20px; height: 20px;
+            background-color: var(--text-color);
+            border-radius: 50%;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            will-change: transform, width, height;
+        }
+
+        /* =========================================
+           PRELOADER
+           ========================================= */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 5000;
+            clip-path: circle(150% at 50% 50%); /* For the reveal mask */
+        }
+
+        .preloader-text {
+            font-family: var(--font-serif);
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            overflow: hidden;
+        }
+
+        /* =========================================
+           LAYOUT WRAPPERS (For Curtain Reveal)
+           ========================================= */
+        .main-wrapper {
+            position: relative;
+            background: var(--bg-color);
+            z-index: 2;
+            margin-bottom: 100vh; /* Exposes the fixed footer */
+        }
+
+        /* =========================================
+           HERO SECTION
+           ========================================= */
+        .hero {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-title {
+            font-family: var(--font-sans);
+            font-size: clamp(3rem, 10vw, 15rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 0.9;
+            transform-origin: center center;
+            white-space: nowrap;
+        }
+
+        .hero-title .char {
+            display: inline-block;
+            will-change: transform, opacity;
+        }
+
+        /* =========================================
+           PHILOSOPHY SECTION (Horizontal Scroll)
+           ========================================= */
+        .philosophy {
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .ph-track {
+            display: flex;
+            width: 300vw; /* 3 panels */
+            height: 100%;
+        }
+
+        .ph-panel {
+            width: 100vw;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 5vw;
+        }
+
+        .ph-img-container {
+            width: 50vw;
+            height: 70vh;
+            overflow: hidden;
+            position: relative;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); /* Brutalist cut */
+        }
+
+        .ph-img-container img {
+            width: 100%;
+            height: 130%; /* Extra height for parallax */
+            object-fit: cover;
+            position: absolute;
+            top: -15%;
+            will-change: transform;
+        }
+
+        .ph-text {
+            position: absolute;
+            font-family: var(--font-serif);
+            font-size: 8vw;
+            z-index: 2;
+            mix-blend-mode: difference;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* =========================================
+           FOOTER (Magnetic Reveal)
+           ========================================= */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #111;
+            z-index: 1; /* Sits behind main wrapper */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .footer h2 {
+            font-family: var(--font-serif);
+            font-size: 5vw;
+            margin-bottom: 2rem;
+        }
+
+        .mag-btn-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .mag-btn {
+            width: 150px;
+            height: 150px;
+            background: transparent;
+            border: 1px solid var(--text-color);
+            border-radius: 50%;
+            color: var(--text-color);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .mag-btn:hover {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise"></div>
+
+    <div class="cursor"></div>
+
+    <div class="preloader">
+        <div class="preloader-text">0%</div>
+    </div>
+
+    <div class="main-wrapper">
+
+        <section class="hero">
+            <h1 class="hero-title">WE BEND REALITY</h1>
+        </section>
+
+        <section class="philosophy">
+            <div class="ph-track">
+                <div class="ph-panel">
+                    <h2 class="ph-text" style="left: 10%; top: 20%;">FORM IS LIQUID</h2>
+                    <div class="ph-img-container hover-target">
+                        <img class="parallax-img" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" alt="Abstract 1">
+                    </div>
+                </div>
+                <div class="ph-panel">
+                    <h2 class="ph-text" style="right: 5%; bottom: 20%;">EMBRACE CHAOS</h2>
+                    <div class="ph-img-container hover-target">
+                        <img class="parallax-img" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop" alt="Abstract 2">
+                    </div>
+                </div>
+                <div class="ph-panel">
+                    <h2 class="ph-text" style="left: 20%; top: 40%;">BEYOND GRIDS</h2>
+                    <div class="ph-img-container hover-target">
+                        <img class="parallax-img" src="https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&w=2787&auto=format&fit=crop" alt="Abstract 3">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <h2>ENTER OBLIVION</h2>
+        <div class="mag-btn-wrapper">
+            <button class="mag-btn hover-target">Initiate</button>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/split-type"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+    <script>
+        // Register GSAP Plugins
+        gsap.registerPlugin(ScrollTrigger);
+
+        // =========================================
+        // 1. SMOOTH SCROLLING (Lenis)
+        // =========================================
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom brutalist easing
+            smooth: true,
+        });
+
+        // Connect Lenis to GSAP ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
+
+        // =========================================
+        // 2. CUSTOM CURSOR & MAGNETIC BUTTON
+        // =========================================
+        const cursor = document.querySelector('.cursor');
+        const hoverTargets = document.querySelectorAll('.hover-target');
+
+        // Quick setters for performance
+        const cursorX = gsap.quickTo(cursor, "left", {duration: 0.2, ease: "power3"});
+        const cursorY = gsap.quickTo(cursor, "top", {duration: 0.2, ease: "power3"});
+
+        window.addEventListener('mousemove', (e) => {
+            cursorX(e.clientX);
+            cursorY(e.clientY);
+        });
+
+        // Hover effect for cursor scaling
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => gsap.to(cursor, {width: 80, height: 80, duration: 0.3}));
+            target.addEventListener('mouseleave', () => gsap.to(cursor, {width: 20, height: 20, duration: 0.3}));
+        });
+
+        // Magnetic Button Logic inside Footer
+        const magWrapper = document.querySelector('.mag-btn-wrapper');
+        const magBtn = document.querySelector('.mag-btn');
+
+        magWrapper.addEventListener('mousemove', (e) => {
+            const rect = magWrapper.getBoundingClientRect();
+            const x = (e.clientX - rect.left) - rect.width / 2;
+            const y = (e.clientY - rect.top) - rect.height / 2;
+
+            // Move button towards cursor, but constrained
+            gsap.to(magBtn, { x: x * 0.4, y: y * 0.4, duration: 0.3, ease: "power2.out" });
+        });
+
+        magWrapper.addEventListener('mouseleave', () => {
+            // Snap back
+            gsap.to(magBtn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+        });
+
+        // =========================================
+        // 3. PRELOADER & HERO ENTRANCE CHOREOGRAPHY
+        // =========================================
+        const preloader = document.querySelector('.preloader');
+        const loaderText = document.querySelector('.preloader-text');
+
+        // Fake loading progress
+        let progress = { value: 0 };
+        const tlLoad = gsap.timeline();
+
+        tlLoad.to(progress, {
+            value: 100,
+            duration: 2.5,
+            ease: "power2.inOut",
+            onUpdate: () => {
+                loaderText.innerHTML = Math.round(progress.value) + "%";
+            },
+            onComplete: () => {
+                // Split the preloader text to shatter it
+                const splitLoad = new SplitType(loaderText, { types: 'chars' });
+
+                const tlEnter = gsap.timeline();
+
+                // Shatter effect
+                tlEnter.to(splitLoad.chars, {
+                    y: () => gsap.utils.random(-200, 200),
+                    x: () => gsap.utils.random(-200, 200),
+                    rotationZ: () => gsap.utils.random(-90, 90),
+                    opacity: 0,
+                    duration: 1,
+                    stagger: 0.05,
+                    ease: "power4.inOut"
+                })
+                // Circular Mask Reveal for Hero
+                .to(preloader, {
+                    clipPath: "circle(0% at 50% 50%)", // Shrinks to nothing to reveal background
+                    duration: 1.5,
+                    ease: "expo.inOut"
+                }, "-=0.5")
+                // Init Hero Animation
+                .call(initHeroText);
+            }
+        });
+
+        // =========================================
+        // 4. HERO SECTION ANIMATIONS
+        // =========================================
+        const heroTitle = document.querySelector('.hero-title');
+        let splitHero;
+
+        function initHeroText() {
+            // Split "WE BEND REALITY"
+            splitHero = new SplitType(heroTitle, { types: 'chars' });
+
+            // Initial wave-like entry animation
+            gsap.fromTo(splitHero.chars,
+                { y: 100, opacity: 0, rotationX: -90, skewX: 20 },
+                { y: 0, opacity: 1, rotationX: 0, skewX: 0, duration: 1.5, stagger: 0.05, ease: "back.out(1.7)" }
+            );
+
+            // ScrollTrigger: Aggressive Scale & "Window" Transition
+            // We scale the whole title massively while fading so the user "flies through" the text
+            gsap.to(heroTitle, {
+                scale: 60,
+                opacity: 0,
+                ease: "power2.in",
+                scrollTrigger: {
+                    trigger: ".hero",
+                    start: "top top",
+                    end: "+=150%", // How long to scroll before it disappears
+                    scrub: 1,
+                    pin: true
+                }
+            });
+        }
+
+        // =========================================
+        // 5. PHILOSOPHY SECTION (Horizontal Scroll)
+        // =========================================
+        const phTrack = document.querySelector('.ph-track');
+        const phPanels = gsap.utils.toArray('.ph-panel');
+
+        // Pin and slide the track horizontally
+        let scrollTween = gsap.to(phTrack, {
+            xPercent: -100 * (phPanels.length - 1),
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".philosophy",
+                pin: true,
+                scrub: 1,
+                end: () => "+=" + phTrack.offsetWidth // Scroll distance matches track width
+            }
+        });
+
+        // Inner Parallax Effects
+        phPanels.forEach((panel, i) => {
+            const img = panel.querySelector('.parallax-img');
+            const text = panel.querySelector('.ph-text');
+
+            // Image Parallax (moves slightly within its container as horizontal scroll happens)
+            gsap.to(img, {
+                xPercent: 20, // Move image 20% to the right inside the clip-path container
+                ease: "none",
+                scrollTrigger: {
+                    trigger: panel,
+                    containerAnimation: scrollTween, // Links this animation to the horizontal sliding timeline
+                    start: "left right",
+                    end: "right left",
+                    scrub: true
+                }
+            });
+
+            // Floating Text Depth (moves at a different speed to the panel)
+            gsap.fromTo(text,
+                { x: 200 }, // Start ahead
+                {
+                    x: -200, // Move behind
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: panel,
+                        containerAnimation: scrollTween,
+                        start: "left right",
+                        end: "right left",
+                        scrub: true
+                    }
+                }
+            );
+        });
+
+    </script>
+</body>
+</html>
