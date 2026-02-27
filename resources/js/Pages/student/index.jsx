@@ -15,6 +15,7 @@ export default function Home() {
                         src={logoSiswa}
                         alt="SarprasKu"
                         className="h-9 w-auto"
+                        draggable={false}
                     />
 
                     <div className="flex items-center gap-3">
@@ -39,6 +40,7 @@ export default function Home() {
                             src={logoSekolah}
                             alt="Logo SMKN 4"
                             className="h-10 w-auto"
+                            draggable={false}
                         />
                     </div>
 
@@ -64,6 +66,7 @@ export default function Home() {
                             src={logoSiswa}
                             alt="SarprasKu Siswa"
                             className="h-32 w-auto"
+                            draggable={false}
                         />
                         <p className="mt-4 max-w-xl text-sm text-slate-600">
                             Sampaikan laporan sarana sekolah dengan mudah,
@@ -71,7 +74,7 @@ export default function Home() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:items-stretch">
+                    <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:items-stretch" draggable={false}>
                         <TileButton
                             title={["Berikan", "Aspirasi"]}
                             href="/aspirasi/create"
@@ -101,7 +104,7 @@ export default function Home() {
 
                             <TileButton
                                 title="Profil"
-                                href="/profil"
+                                href="/profile"
                                 icon={UserCircle2}
                                 iconPosition="top-right"
                                 textAlign="left"

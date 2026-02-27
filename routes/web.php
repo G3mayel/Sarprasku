@@ -13,3 +13,12 @@ Route::get('/aspirasi/create', function () {
 Route::get('/aspirasi/history', function () {
     return inertia('student/aspirasi/history');
 });
+
+Route::get('/profile', function () {
+    return inertia('student/profile');
+});
+
+Route::get('/login', function () {
+    return inertia('login');
+});
+
